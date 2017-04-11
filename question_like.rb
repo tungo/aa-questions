@@ -76,7 +76,6 @@ class QuestionLike
   end
 
 
-
   def initialize(options)
     @question_id = options['question_id']
     @user_id = options['user_id']

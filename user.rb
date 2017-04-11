@@ -16,12 +16,6 @@ class User
     self.new(results.first)
   end
 
-  def initialize(options)
-    @fname = options['fname']
-    @lname = options['lname']
-    @id = options['id']
-  end
-
   def self.find_by_name(fname, lname)
     results = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
       SELECT
@@ -34,6 +28,12 @@ class User
     SQL
 
     results.map { |result| self.new(result) }
+  end
+
+  def initialize(options)
+    @fname = options['fname']
+    @lname = options['lname']
+    @id = options['id']
   end
 
   def authored_questions
@@ -70,5 +70,36 @@ class User
     SQL
 
     res.first['karma']
+  end
+
+  def save
+    if @id
+      update
+    else
+      insert
+    end
+  end
+
+  private
+  def update
+    QuestionsDatabase.instance.execute(<<-SQL, @fname, @lname, @id)
+      UPDATE
+        users
+      SET
+        fname = ?,
+        lname = ?
+      WHERE
+        id = ?;
+    SQL
+  end
+
+  def insert
+    QuestionsDatabase.instance.execute(<<-SQL, @fname, @lname)
+      INSERT INTO
+        users(fname, lname)
+      VALUES
+        (?, ?);
+    SQL
+    @id = QuestionsDatabase.instance.last_insert_row_id
   end
 end
