@@ -1,4 +1,4 @@
-class Follow
+class QuestionFollow
   attr_reader :question_id, :user_id, :id
 
   def self.find_by_id(id)
@@ -39,6 +39,25 @@ class Follow
         questions ON questions.id = question_follows.question_id
       WHERE
         question_follows.user_id = ?;
+    SQL
+
+    results.map { |result| Question.new(result) }
+  end
+
+  def self.most_followed_questions(n)
+    results = QuestionsDatabase.instance.execute(<<-SQL, n)
+      SELECT
+        questions.*
+      FROM
+        questions
+      LEFT JOIN
+        question_follows ON questions.id = question_follows.question_id
+      GROUP BY
+        questions.id
+      ORDER BY
+        COUNT(*) DESC
+      LIMIT
+        ?;
     SQL
 
     results.map { |result| Question.new(result) }

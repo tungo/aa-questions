@@ -23,6 +23,10 @@ class Question
     @id = options['id']
   end
 
+  def self.most_followed(n)
+    QuestionFollow.most_followed_questions(n)
+  end
+
   def self.find_by_author_id(author_id)
     user = User.find_by_id(author_id)
 
@@ -47,6 +51,14 @@ class Question
   end
 
   def followers
-    Follow.followers_for_question_id(@id)
+    QuestionFollow.followers_for_question_id(@id)
+  end
+
+  def likers
+    QuestionLikes.likers_for_question_id(@id)
+  end
+
+  def num_likes
+    QuestionLikes.num_likes_for_question_id(@id)
   end
 end
