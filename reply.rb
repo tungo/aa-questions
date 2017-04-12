@@ -4,38 +4,6 @@ class Reply < ModelBase
 
   TABLE_NAME = :replies
 
-  def self.find_by_user_id(user_id)
-    user = User.find_by_id(user_id)
-
-    results = QuestionsDatabase.instance.execute(<<-SQL, user.id)
-      SELECT
-        *
-      FROM
-        replies
-      WHERE
-        user_id = ?;
-    SQL
-
-    results.map { |result| self.new(result) }
-  end
-
-  def self.find_by_question_id(question_id)
-    question = Question.find_by_id(question_id)
-
-    return [] unless question
-
-    results = QuestionsDatabase.instance.execute(<<-SQL, question.id)
-      SELECT
-        *
-      FROM
-        replies
-      WHERE
-        question_id = ?;
-    SQL
-
-    results.map { |result| self.new(result) }
-  end
-
   def initialize(options)
     @body = options['body']
     @question_id = options['question_id']

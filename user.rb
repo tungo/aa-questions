@@ -4,20 +4,6 @@ class User < ModelBase
 
   TABLE_NAME = :users
 
-  def self.find_by_name(fname, lname)
-    results = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
-      SELECT
-        *
-      FROM
-        users
-      WHERE
-        fname = ?
-        AND lname = ?;
-    SQL
-
-    results.map { |result| self.new(result) }
-  end
-
   def initialize(options)
     @fname = options['fname']
     @lname = options['lname']
@@ -26,7 +12,7 @@ class User < ModelBase
 
   def authored_questions
     raise "#{self} not in database" unless @id
-    Question.find_by_author_id(@id)
+    Question.find_by_user_id(@id)
   end
 
   def authored_replies

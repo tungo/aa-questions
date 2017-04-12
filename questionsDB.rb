@@ -15,18 +15,27 @@ end
 class ModelBase
   TABLE_NAME = nil
 
-  def self.find_by_id(id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        #{self::TABLE_NAME}
-      WHERE
-        id = ?;
-    SQL
-    return nil if results.empty?
+  def self.method_missing(method_name, *args)
+    method_name = method_name.to_s
+    if method_name.start_with?("find_by_")
 
-    self.new(results.first)
+      attributes_string = method_name[("find_by_".length)..-1]
+
+      attribute_names = attributes_string.split("_and_")
+
+      unless attribute_names.length == args.length
+        raise "unexpected # of arguments"
+      end
+
+      search_conditions = {}
+      attribute_names.each_index do |i|
+        search_conditions[attribute_names[i]] = args[i]
+      end
+
+      self.where(search_conditions)
+    else
+      super
+    end
   end
 
   def self.all

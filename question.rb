@@ -4,21 +4,6 @@ class Question < ModelBase
 
   TABLE_NAME = :questions
 
-  def self.find_by_author_id(author_id)
-    user = User.find_by_id(author_id)
-
-    results = QuestionsDatabase.instance.execute(<<-SQL, user.id)
-      SELECT
-        *
-      FROM
-        questions
-      WHERE
-        user_id = ?;
-    SQL
-
-    results.map { |result| self.new(result) }
-  end
-
   def self.most_followed(n)
     QuestionFollow.most_followed_questions(n)
   end
