@@ -1,19 +1,8 @@
-class Reply
+class Reply < ModelBase
   attr_accessor :body
   attr_reader :question_id, :parent_id, :user_id, :id
 
-  def self.find_by_id(id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        replies
-      WHERE
-        id = ?;
-    SQL
-    return nil if results.empty?
-    self.new(results.first)
-  end
+  TABLE_NAME = :replies
 
   def self.find_by_user_id(user_id)
     user = User.find_by_id(user_id)
@@ -79,38 +68,5 @@ class Reply
     SQL
 
     replies.map { |reply| self.class.new(reply) }
-  end
-
-  def save
-    if @id
-      update
-    else
-      insert
-    end
-  end
-
-  private
-  def update
-    QuestionsDatabase.instance.execute(<<-SQL, @body, @user_id, @question_id, @parent_id, @id)
-      UPDATE
-        replies
-      SET
-        body = ?,
-        user_id = ?,
-        question_id = ?,
-        parent_id = ?
-      WHERE
-        id = ?;
-    SQL
-  end
-
-  def insert
-    QuestionsDatabase.instance.execute(<<-SQL, body, @user_id, @question_id, @parent_id)
-      INSERT INTO
-        replies(body, user_id, question_id, parent_id)
-      VALUES
-        (?, ?, ?, ?);
-    SQL
-    @id = QuestionsDatabase.instance.last_insert_row_id
   end
 end

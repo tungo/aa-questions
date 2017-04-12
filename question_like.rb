@@ -1,18 +1,7 @@
-class QuestionLike
+class QuestionLike < ModelBase
   attr_reader :question_id, :user_id, :id
 
-  def self.find_by_id(id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        question_likes
-      WHERE
-        id = ?;
-    SQL
-    return nil if results.empty?
-    self.new(results.first)
-  end
+  TABLE_NAME = :question_likes
 
   def self.likers_for_question_id(question_id)
     results = QuestionsDatabase.instance.execute(<<-SQL, question_id)

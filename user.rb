@@ -1,20 +1,8 @@
-class User
+class User < ModelBase
   attr_accessor :fname, :lname
   attr_reader :id
 
-  def self.find_by_id(id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        users
-      WHERE
-        id = ?;
-    SQL
-    return nil if results.empty?
-
-    self.new(results.first)
-  end
+  TABLE_NAME = :users
 
   def self.find_by_name(fname, lname)
     results = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
@@ -70,36 +58,5 @@ class User
     SQL
 
     res.first['karma']
-  end
-
-  def save
-    if @id
-      update
-    else
-      insert
-    end
-  end
-
-  private
-  def update
-    QuestionsDatabase.instance.execute(<<-SQL, @fname, @lname, @id)
-      UPDATE
-        users
-      SET
-        fname = ?,
-        lname = ?
-      WHERE
-        id = ?;
-    SQL
-  end
-
-  def insert
-    QuestionsDatabase.instance.execute(<<-SQL, @fname, @lname)
-      INSERT INTO
-        users(fname, lname)
-      VALUES
-        (?, ?);
-    SQL
-    @id = QuestionsDatabase.instance.last_insert_row_id
   end
 end
